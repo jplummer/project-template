@@ -1,60 +1,75 @@
 # Agent Configuration
 
-Shared agent configuration for Cursor and Claude Code across projects.
+Unified agent rules for Cursor, Claude Code, Codex, and Gemini. One source of truth, shared via symlinks.
 
 ## Structure
 
 ```
 cursor-config/
-  template/              # Copy into new projects
-    .cursor/rules/
-      web-frontend.mdc   # Semantic HTML, vanilla CSS, a11y, design tokens
-      javascript.mdc     # JS/Node.js standards
-      markdown.mdc       # Markdown formatting rules
-      content.mdc        # Content authoring guidelines
-      testing.mdc        # Testing philosophy and requirements
-      memory.mdc         # Empty shared memory scaffold
-    CLAUDE.md            # Template with @imports pre-wired
-  global/                # Content for global tool configs
-    user-rules-universal.md    # Cursor User Rules (Settings → Rules)
-    user-rules-cleanup.md      # Tracks what moved from User to Project rules
-    claude-code-global.md      # Reference for ~/.claude/CLAUDE.md
+  AGENTS.md                  # Global agent rules (source of truth)
+  bin/
+    setup-global.sh          # Set up ~/.agents/ and symlinks to all tools
+    new-project.sh           # Scaffold agent config into a new project
+  template/                  # Project-level template files
+    AGENTS.md                # Project rules template (name, principles, @imports)
+    .agents/rules/           # Domain-specific rules (canonical location)
+      web-frontend.mdc       # Semantic HTML, vanilla CSS, a11y, design tokens
+      javascript.mdc         # JS/Node.js standards
+      markdown.mdc           # Markdown formatting rules
+      content.mdc            # Content authoring guidelines
+      testing.mdc            # Testing philosophy and requirements
+      memory.mdc             # Cross-session agent memory scaffold
+  reference/                 # Research material (gitignored)
 ```
 
-## How the layers work
+In each project, `.cursor/rules` is a symlink to `../.agents/rules`, so Cursor reads the same files without duplication.
 
-Both tools support layered configuration: global rules that apply everywhere, plus project rules that apply to a specific project.
+## How it works
 
-### Cursor
+### Global rules (all projects, all tools)
 
-1. **User Rules** (all projects): Paste `global/user-rules-universal.md` into Cursor Settings → Rules → User Rules. Contains core protocol, communication style, coding standards.
-2. **Project Rules** (per-project): `.cursor/rules/*.mdc` files. Each has `alwaysApply: true` to load automatically.
+`AGENTS.md` at the repo root contains the core protocol: behavioral rules, communication style, code standards. It gets deployed to every AI tool via `bin/setup-global.sh`.
 
-### Claude Code
+The setup script:
 
-1. **Global** (all projects): `~/.claude/CLAUDE.md`. Contains the same core protocol as Cursor User Rules.
-2. **Project** (per-project): `CLAUDE.md` in the project root. Uses `@` imports to pull in `.cursor/rules/*.mdc` and project docs.
-3. **Memory**: `~/.claude/projects/.../memory/MEMORY.md` — a pointer that imports `.cursor/rules/memory.mdc`.
+1. Copies `AGENTS.md` to `~/.agents/AGENTS.md`
+2. Symlinks tool-specific files to it:
+   - `~/.claude/CLAUDE.md` -> `~/.agents/AGENTS.md`
+   - `~/.codex/instructions.md` -> `~/.agents/AGENTS.md`
+   - `~/.gemini/GEMINI.md` -> `~/.agents/AGENTS.md`
+3. Copies content to clipboard for Cursor User Rules (manual paste required — Cursor has no file-based global config)
+
+```bash
+./bin/setup-global.sh
+```
+
+Run this whenever you edit `AGENTS.md`.
+
+### Project rules (per-project)
+
+Each project gets its own `AGENTS.md` (from the template) plus `.agents/rules/*.mdc` files for domain-specific rules. Cursor reads the `.mdc` files via a `.cursor/rules` symlink that points to `.agents/rules`. Claude Code reads `AGENTS.md` natively, which `@`-imports the same `.mdc` files.
+
+```bash
+./bin/new-project.sh /path/to/your/project
+```
+
+The script:
+1. Copies `template/AGENTS.md` and `.agents/rules/*.mdc` into the project (skips existing)
+2. Creates `CLAUDE.md` as a symlink to `AGENTS.md`
+3. Creates `.cursor/rules` as a symlink to `../.agents/rules`
+
+Then customize:
+1. Edit `AGENTS.md` — update project name, description, key principles
+2. Add project-specific rules to `.agents/rules/` as needed
+3. Add `@` imports to `AGENTS.md` for project docs
 
 ### Shared memory
 
-`.cursor/rules/memory.mdc` is the single source of truth for cross-session learnings. Both Cursor and Claude Code read and write to it. Claude Code's `MEMORY.md` imports it via `@` reference to avoid duplication.
+`.agents/rules/memory.mdc` is the cross-session memory file. Both Cursor and Claude Code read and write to it. Keep entries concise; remove anything outdated.
 
-## Starting a new project
+## Updating rules
 
-```bash
-/Users/jonplummer/Projects/cursor-config/new-project.sh /path/to/your/project
-```
-
-The script copies template files into your project, skipping any that already exist. It then tells you what to customize:
-
-1. Edit `CLAUDE.md` — update project name, description, and key principles
-2. Add project-specific rules to `.cursor/rules/` as needed (e.g., `eleventy.mdc` for 11ty projects)
-3. Add `@` imports to `CLAUDE.md` for any project docs
-4. On first Claude Code session, set `MEMORY.md` to point to the shared memory file (the script prints the exact content)
-
-## Updating global rules
-
-- **Cursor User Rules**: Update in Cursor Settings → Rules, then update `global/user-rules-universal.md` to match
-- **Claude Code global**: Update `~/.claude/CLAUDE.md`, then update `global/claude-code-global.md` to match
-- **Template rules**: Update in `template/.cursor/rules/`, then copy to active projects as needed
+1. Edit `AGENTS.md` in this repo
+2. Run `bin/setup-global.sh` to deploy globally
+3. Paste into Cursor User Rules when prompted
+4. For project-level template changes, edit files in `template/` and re-run `bin/new-project.sh` on active projects

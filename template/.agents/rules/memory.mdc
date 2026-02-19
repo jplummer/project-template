@@ -8,7 +8,7 @@ alwaysApply: true
 
 Shared memory file for both Cursor and Claude Code agents. When you encounter a mistake that could recur, or learn something important about this project, append it to this file under the relevant heading below. Keep entries concise. Remove entries that turn out to be wrong or outdated.
 
-When completing a task, consider whether anything you learned should be recorded here.
+**At the end of every task session, update this file** with any new learnings before your final response. Don't ask — just do it. If nothing was learned, skip silently.
 
 ### Project patterns
 
