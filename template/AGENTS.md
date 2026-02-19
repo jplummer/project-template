@@ -16,7 +16,11 @@
 @.agents/rules/testing.mdc
 @.agents/rules/memory.mdc
 
+## Commands
+
+Agent commands live in `.agents/commands/`. Claude Code can invoke them as slash commands via the `.claude/commands` symlink.
+
 ## Reference Docs
 
 [Add @imports for project docs as needed, e.g.:]
-[@ docs/commands.md]
+[@ docs/architecture.md]

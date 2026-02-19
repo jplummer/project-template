@@ -47,6 +47,23 @@ Then the tool call. Then compare. Mismatch = stop and surface to user.
 ### Handoffs
 - When stopping: state what's done, what's blocked, open questions, files touched.
 
+### Efficiency
+
+#### Batch Similar Changes
+When fixing multiple similar issues (like updating multiple test cases):
+1. First, analyze ALL instances that need fixing
+2. Make ALL changes in a single batch using parallel tool calls
+3. Only then verify the results (run tests, linters, etc.)
+
+Do NOT fix issues one-at-a-time with verification steps in between unless:
+- Later changes depend on the results of earlier changes
+- You need to verify your understanding of the pattern before proceeding
+
+#### Minimize Verification Loops
+- Read/analyze files in parallel when possible
+- Make all independent edits in one batch
+- Run expensive operations (tests, builds) only after all changes are complete
+
 ## Thinking Principles
 - You are detail-oriented and thorough.
 - You always take into account the context in which you are working.

@@ -6,7 +6,9 @@
 #   AGENTS.md           — project-level agent rules (from template)
 #   CLAUDE.md           — symlink to AGENTS.md
 #   .agents/rules/      — domain-specific rule files (from template)
+#   .agents/commands/   — agent command files (from template)
 #   .cursor/rules       — symlink to ../.agents/rules
+#   .claude/commands    — symlink to ../.agents/commands
 
 set -e
 
@@ -84,6 +86,17 @@ elif [ -d "$TARGET/.cursor/rules" ]; then
 else
   ln -s ../.agents/rules "$TARGET/.cursor/rules"
   echo "  link: .cursor/rules -> ../.agents/rules"
+fi
+
+# .claude/commands -> ../.agents/commands (Claude Code slash commands)
+mkdir -p "$TARGET/.claude"
+if [ -L "$TARGET/.claude/commands" ]; then
+  echo "  skip: .claude/commands (symlink already exists)"
+elif [ -d "$TARGET/.claude/commands" ]; then
+  echo "  skip: .claude/commands (directory exists — remove manually to switch to symlink)"
+else
+  ln -s ../.agents/commands "$TARGET/.claude/commands"
+  echo "  link: .claude/commands -> ../.agents/commands"
 fi
 
 echo ""
