@@ -1,49 +1,35 @@
 #!/usr/bin/env bash
-# Sets up OS-level agent configuration.
-# Creates ~/.agents/ with AGENTS.md and symlinks for Claude Code, Codex, and Gemini.
-# Cursor User Rules require manual paste (no file-based config available).
+# Sets up global agent configuration from the dotagents repo.
+# Clones ~/.agents/ if not present; pulls latest if it is.
+# Creates OS-level symlinks for Claude Code, Codex, and Gemini CLI.
+#
+# Run this on a new machine or after reinstalling tools.
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_DIR="$(dirname "$SCRIPT_DIR")"
-SOURCE="$REPO_DIR/AGENTS.md"
-
 AGENTS_DIR="$HOME/.agents"
-AGENTS_FILE="$AGENTS_DIR/AGENTS.md"
-
-if [ ! -f "$SOURCE" ]; then
-  echo "Error: $SOURCE not found."
-  exit 1
-fi
+AGENTS_REPO="git@github.com:jplummer/dotagents.git"
 
 echo "Setting up global agent configuration..."
 echo ""
 
-# --- Create ~/.agents/ and copy AGENTS.md ---
-
-mkdir -p "$AGENTS_DIR"
-
-if [ -f "$AGENTS_FILE" ]; then
-  if diff -q "$SOURCE" "$AGENTS_FILE" > /dev/null 2>&1; then
-    echo "  unchanged: $AGENTS_FILE"
-  else
-    cp "$SOURCE" "$AGENTS_FILE"
-    echo "  updated: $AGENTS_FILE"
-  fi
+# --- Ensure ~/.agents/ is a git repo ---
+if [ -d "$AGENTS_DIR/.git" ]; then
+  echo "  ~/.agents/ exists — pulling latest"
+  git -C "$AGENTS_DIR" pull
 else
-  cp "$SOURCE" "$AGENTS_FILE"
-  echo "  created: $AGENTS_FILE"
+  echo "  Cloning dotagents into ~/.agents/"
+  git clone "$AGENTS_REPO" "$AGENTS_DIR"
 fi
 
-# --- Create symlinks ---
+echo ""
 
+# --- Create symlinks ---
 create_symlink() {
   local target="$1"
   local link="$2"
   local link_dir
   link_dir="$(dirname "$link")"
-
   mkdir -p "$link_dir"
 
   if [ -L "$link" ]; then
@@ -59,31 +45,25 @@ create_symlink() {
   elif [ -f "$link" ]; then
     mv "$link" "${link}.bak"
     ln -s "$target" "$link"
-    echo "  backed up and linked: $link -> $target (original at ${link}.bak)"
+    echo "  backed up and linked: $link -> $target"
   else
     ln -s "$target" "$link"
     echo "  created: $link -> $target"
   fi
 }
 
-echo ""
 echo "Symlinks:"
-create_symlink "$AGENTS_FILE" "$HOME/.claude/CLAUDE.md"
-create_symlink "$AGENTS_FILE" "$HOME/.codex/instructions.md"
-create_symlink "$AGENTS_FILE" "$HOME/.gemini/GEMINI.md"
-
-# --- Cursor reminder ---
+create_symlink "$AGENTS_DIR/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+create_symlink "$AGENTS_DIR/AGENTS.md" "$HOME/.codex/instructions.md"
+create_symlink "$AGENTS_DIR/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 echo ""
-echo "Cursor User Rules:"
-if command -v pbcopy > /dev/null 2>&1; then
-  cat "$AGENTS_FILE" | pbcopy
-  echo "  Copied AGENTS.md content to clipboard."
-  echo "  Paste into: Cursor Settings > General > Rules for AI"
-else
-  echo "  Manually copy the contents of $AGENTS_FILE"
-  echo "  into: Cursor Settings > General > Rules for AI"
-fi
-
+echo "Cowork:"
+echo "  ~/Documents/Claude/CLAUDE.md is the Cowork entry point."
+echo "  It requests ~/.agents/ at session start. Update it manually if needed."
+echo ""
+echo "Cursor:"
+echo "  Uses per-project .cursor/rules/*.mdc — no global setup needed."
+echo "  Run bin/new-project.sh to scaffold Cursor rules for a project."
 echo ""
 echo "Done."
