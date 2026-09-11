@@ -81,7 +81,9 @@ EOF
 fi
 echo ""
 echo "Cursor:"
-echo "  No global file. Run bin/new-project.sh on a new project, or"
-echo "  bin/sync-voice.sh on an existing one, to generate its voice.mdc."
+echo "  Global rules arrive through a User Rule (Cursor Settings > Rules > User)."
+echo "  It can't be scripted — paste the pointer text from README.md, 'Global rules'."
+echo "  Then run bin/new-project.sh on a new project, or bin/sync-voice.sh on an"
+echo "  existing one, to generate its voice.mdc."
 echo ""
 echo "Done."

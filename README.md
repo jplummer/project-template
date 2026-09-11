@@ -46,9 +46,15 @@ Global rules — behavioral protocol, writing style, code standards, personal co
 | Codex CLI | `~/.codex/instructions.md` → same symlink | `setup-global.sh` |
 | Gemini CLI | `~/.gemini/GEMINI.md` → same symlink | `setup-global.sh` |
 | Cowork | `~/Documents/Claude/CLAUDE.md` — asks for `~/.agents/` at session start, then defers to `AGENTS.md` | `setup-global.sh` (written if missing) |
-| Cursor | no global file; per-project `.agents/rules/voice.mdc` carries the writing rules | `sync-voice.sh` |
+| Cursor | a User Rule (Cursor Settings → Rules → User) holding only the pointer text below; plus per-project `.agents/rules/voice.mdc`, which puts the writing rules in context deterministically – the pointer depends on the agent choosing to read the file | by hand (User Rules live in Cursor's settings database, not a file); `sync-voice.sh` for `voice.mdc` |
 
 None of the entry points list rule files. `~/.agents/AGENTS.md` has the only list (its Reference Files section), so a new global file is added there and nowhere else.
+
+The Cursor User Rule, verbatim (verified 2026-09-11: the agent reads the file unprompted at session start):
+
+```
+Before doing anything else in a session, read ~/.agents/AGENTS.md and follow its Reference Files section – load each file it lists, at the times it says to. If the file-read tool refuses a path outside the workspace, run `cat ~/.agents/AGENTS.md` in the terminal instead. These are Jon's global rules; the project's own rules load separately.
+```
 
 To set up global config on a new machine:
 
