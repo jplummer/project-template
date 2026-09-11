@@ -1,14 +1,10 @@
 # project-template
 
-Starter template for new projects. Copy `template/AGENTS.md` into your project root when starting something new, then fill in the project-specific sections.
+Scaffolding for per-project agent configuration. Run `bin/new-project.sh /path/to/project` when starting something new, then fill in the project-specific sections of the `AGENTS.md` it creates. See `README.md` for how the pieces fit.
 
 ## Global agent rules
 
 Global rules (protocol, writing, code style, persona) live in a separate repo and are not duplicated here:
 https://github.com/jplummer/dotagents
 
-Each tool loads them from `~/.agents/` at session start. Your project AGENTS.md should contain only project-specific context.
-
-## Reference
-
-`reference/agent-rules/` contains an older versioned snapshot of global rules (pre-dotagents). It is no longer maintained Ñ use dotagents instead.
+Each tool loads them from `~/.agents/` at session start. A project's `AGENTS.md` should contain only project-specific context.

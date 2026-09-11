@@ -10,4 +10,8 @@ alwaysApply: true
 - Use descriptive image filenames.
 - Include meta descriptions for SEO (50-160 characters).
 - Use proper markdown syntax.
-- Keep paragraphs concise and scannable.
+
+## Prose
+
+- Voice, tone, and word choice follow `voice.mdc` in this directory. It is generated from `~/.agents/writing-rules.md` by `bin/sync-voice.sh` – edit the source, not the copy.
+- Don't shorten, flatten, or restructure prose to make it "scannable." Paragraph length, sentence length, asides, and hedges are the author's choices. Leave them.

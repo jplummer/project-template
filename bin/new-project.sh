@@ -9,6 +9,7 @@
 #   .agents/commands/   — agent command files (from template)
 #   .cursor/rules       — symlink to ../.agents/rules
 #   .claude/commands    — symlink to ../.agents/commands
+#   .agents/rules/voice.mdc — generated from ~/.agents/writing-rules.md (bin/sync-voice.sh)
 
 set -e
 
@@ -99,6 +100,12 @@ else
   echo "  link: .claude/commands -> ../.agents/commands"
 fi
 
+# --- Generate voice.mdc from the global writing rules ---
+
+echo ""
+echo "Voice rule:"
+"$SCRIPT_DIR/sync-voice.sh" "$TARGET"
+
 echo ""
 echo "Done: $copied copied, $skipped skipped"
 echo ""
@@ -107,3 +114,4 @@ echo "  1. Edit AGENTS.md — fill in project name, description, and key princip
 echo "     Global rules load from ~/.agents/ automatically — keep this file project-specific"
 echo "  2. Add @imports to AGENTS.md for any project docs worth loading by default"
 echo "  3. Trim .agents/rules/ to match the project's tech stack"
+echo "     (leave voice.mdc alone — re-run bin/sync-voice.sh when writing-rules.md changes)"

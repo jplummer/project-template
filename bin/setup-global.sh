@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Sets up global agent configuration from the dotagents repo.
 # Clones ~/.agents/ if not present; pulls latest if it is.
-# Creates OS-level symlinks for Claude Code, Codex, and Gemini CLI.
+# Creates OS-level symlinks for Claude Code, Codex, and Gemini CLI, and
+# writes the Cowork pointer file if it doesn't exist.
 #
 # Run this on a new machine or after reinstalling tools.
 
@@ -59,11 +60,28 @@ create_symlink "$AGENTS_DIR/AGENTS.md" "$HOME/.gemini/GEMINI.md"
 
 echo ""
 echo "Cowork:"
-echo "  ~/Documents/Claude/CLAUDE.md is the Cowork entry point."
-echo "  It requests ~/.agents/ at session start. Update it manually if needed."
+COWORK_ENTRY="$HOME/Documents/Claude/CLAUDE.md"
+if [ -f "$COWORK_ENTRY" ]; then
+  echo "  exists: $COWORK_ENTRY (left alone — compare against the block in this script if in doubt)"
+else
+  mkdir -p "$(dirname "$COWORK_ENTRY")"
+  cat > "$COWORK_ENTRY" <<'EOF'
+# Cowork – global entry point
+
+At the start of every session:
+
+1. Request the folder `~/.agents/` (use `device_request_folder_access`) if it isn't already connected.
+2. Read `~/.agents/AGENTS.md` and load the files its Reference Files section lists, at the times it says to.
+
+This file deliberately lists nothing else. `AGENTS.md` is the only place the global rule files are enumerated, so adding a file there is enough.
+
+Full picture: `~/.agents/README.md` or https://github.com/jplummer/dotagents
+EOF
+  echo "  created: $COWORK_ENTRY"
+fi
 echo ""
 echo "Cursor:"
-echo "  Uses per-project .cursor/rules/*.mdc — no global setup needed."
-echo "  Run bin/new-project.sh to scaffold Cursor rules for a project."
+echo "  No global file. Run bin/new-project.sh on a new project, or"
+echo "  bin/sync-voice.sh on an existing one, to generate its voice.mdc."
 echo ""
 echo "Done."
